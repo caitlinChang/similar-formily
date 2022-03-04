@@ -16,6 +16,7 @@ export class Field {
   props?: Field;
   form?: Form;
   path?: string;
+  children?: any;
 
   constructor(props: Field) {
     this.title = props.title;
@@ -26,9 +27,12 @@ export class Field {
     this.value = props.value;
     this.form = props.form;
     this.path = props.path;
+    this.children = props.children;
   }
 
   set value(value: any) {
+    console.log("value path = ", this.path);
+
     this.form?.setValuesIn(value, this.path as string);
   }
 
@@ -37,7 +41,8 @@ export class Field {
   }
 
   onInput(e: any[]) {
-    const value = e[0].target.value;
+    const value = e[0]?.target ? e[0].target.value : e[0];
+
     this.value = value;
     // 触发一些生命周期hooks
     this.notify("Input_value_change");

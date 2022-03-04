@@ -20,10 +20,11 @@ const ReactiveField = (props: { field: Field; children?: any }) => {
 
   const renderComponent = () => {
     const [component, componentProps] = props.field.component || [];
+    const children = componentProps?.children || props.children;
     if (!component) {
-      return <></>;
+      return children;
     }
-    const children = componentProps?.children;
+
     const value = props.field.value;
     const onChange = (...args: any[]) => {
       field.onInput(args);
