@@ -2,6 +2,8 @@ import React, { createElement } from "react";
 import { Field } from "../core/field";
 import { observer } from "mobx-react-lite";
 
+// import { observer } from "mobx-react";
+
 export type JSXComponent =
   | keyof JSX.IntrinsicElements
   | React.JSXElementConstructor<any>;
@@ -43,4 +45,7 @@ const ReactiveField = (props: { field: Field; children?: any }) => {
 
   return renderDecorator(renderComponent() as any) as JSXComponent;
 };
-export default ReactiveField;
+
+// export default ReactiveField;
+
+export default observer(ReactiveField as any);

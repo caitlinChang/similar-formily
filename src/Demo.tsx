@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FieldComponent } from "./react/index";
 import { Form as FormInstance } from "./core/form";
-import { FormContext } from "./react/context";
+import { FieldContext, FormContext } from "./react/context";
 import { Input, Form, Button, Select } from "antd";
-import { cloneDeep } from "lodash";
+import { cloneDeep, get } from "lodash";
+
+import { observer } from "mobx-react-lite";
+// import { observer } from "mobx-react";
 
 const form = new FormInstance();
 
@@ -22,7 +25,52 @@ const options = [
   },
 ];
 
-export default function Demo() {
+const ArrayAdvice = observer(() => {
+  const arrayField = useContext(FieldContext);
+  const [value, setValue] = useState([]);
+  const form = useContext(FormContext);
+  if (arrayField?.type !== "array") return <></>;
+  // const value = arrayField?.value || [];
+
+  // const value = form?.getValuesIn(arrayField?.path as string) || [];
+
+  useEffect(() => {
+    const newValue = get(form?.values, arrayField?.path as string);
+    setValue(newValue);
+    console.log(
+      "formValues change = ",
+      cloneDeep(form?.values),
+      newValue,
+      arrayField.path
+    );
+  }, [form?.values]);
+
+  return (
+    <div>
+      {value?.map?.((item: any, index: number) => {
+        return (
+          <FieldComponent
+            name={index}
+            component={[
+              Input,
+              {
+                width: "200px",
+              },
+            ]}
+            decorator={[
+              Form.Item,
+              {
+                label: `建议${index + 1}`,
+              },
+            ]}
+          />
+        );
+      })}
+      {/* <Button onClick={() => arrayField?.push()}> Add More </Button> */}
+    </div>
+  );
+});
+function Demo() {
   return (
     <div style={{ width: "600px", margin: "20px" }}>
       <FormContext.Provider value={form}>
@@ -58,7 +106,7 @@ export default function Demo() {
               label: "年龄",
             },
           ]}
-        ></FieldComponent>
+        />
         <FieldComponent name="object">
           <FieldComponent
             name="address"
@@ -76,24 +124,12 @@ export default function Demo() {
             ]}
           />
         </FieldComponent>
-        <FieldComponent name="array">
-          <FieldComponent
-            name="advice"
-            component={[
-              Input,
-              {
-                width: "200px",
-              },
-            ]}
-            decorator={[
-              Form.Item,
-              {
-                label: "建议1",
-              },
-            ]}
-          />
-          <Button>add</Button>
-        </FieldComponent>
+        <FieldComponent
+          type="array"
+          name="array"
+          component={[ArrayAdvice, {}]}
+          defaultValue={["", ""]}
+        />
         <Button
           type="primary"
           onClick={() => console.log(cloneDeep(form.values))}
@@ -104,3 +140,5 @@ export default function Demo() {
     </div>
   );
 }
+
+export default Demo;

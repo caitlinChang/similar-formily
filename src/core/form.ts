@@ -1,7 +1,7 @@
 import { Field } from "./field";
 import { get, set } from "lodash";
 
-import { observable, makeObservable } from "mobx";
+import { observable, makeObservable, makeAutoObservable } from "mobx";
 export class Form {
   values: any;
   // @ts-ignore
@@ -12,9 +12,11 @@ export class Form {
   constructor() {
     this.values = {};
 
-    makeObservable(this, {
-      values: observable,
-    });
+    // makeObservable(this, {
+    //   values: observable,
+    // });
+
+    makeAutoObservable(this);
   }
 
   setValues(values: any) {
@@ -23,7 +25,7 @@ export class Form {
 
   setValuesIn(value: any, path: string) {
     set(this.values, path, value);
-    // console.log("this.values = ", this.values);
+    // console.log("setValuesIn = ", value, path, this.values);
   }
 
   getValuesIn(path: string) {
