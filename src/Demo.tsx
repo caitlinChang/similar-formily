@@ -6,6 +6,7 @@ import { Input, Form, Button, Select } from "antd";
 import { cloneDeep, get } from "lodash";
 
 import { observer } from "mobx-react-lite";
+import { Field } from "./core/field";
 
 const form = new FormInstance();
 
@@ -34,6 +35,7 @@ const ArrayAdvice = observer(() => {
       {value?.map?.((item: any, index: number) => {
         return (
           <FieldComponent
+            key={index}
             name={index}
             component={[
               Input,
@@ -90,6 +92,13 @@ function Demo() {
               label: "年龄",
             },
           ]}
+          reactions={(field: Field) => {
+            if (field.value === "teenager") {
+              const nameField = field.form.query("name");
+              nameField.value = "Lily";
+            }
+            console.log("reactions中的field = ", field.value);
+          }}
         />
         <FieldComponent name="object">
           <FieldComponent

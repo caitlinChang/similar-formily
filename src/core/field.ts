@@ -1,6 +1,4 @@
-import { debug } from "console";
-import { cloneDeep } from "lodash";
-import { makeAutoObservable, observable, makeObservable } from "mobx";
+import { observable, makeObservable, autorun, computed } from "mobx";
 import { Form } from "./form";
 
 export type JSXComponent =
@@ -14,13 +12,17 @@ export class Field {
   component?: [JSXComponent] | [JSXComponent, any];
   decorator?: [JSXComponent] | [JSXComponent, any];
   defaultValue?: any;
+  display: "visible" | "hidden";
+  pattern: "editable" | "readonly" | "readPretty" | "disable";
   mounted?: boolean;
   unmounted?: boolean;
   parent?: Field;
   props?: Field;
-  form?: Form;
-  path?: string;
+  form: Form;
+  path: string;
   children?: any;
+  disposers: ((field: Field) => void)[];
+  reactions?: Function;
 
   constructor(props: Field) {
     this.title = props.title;
@@ -33,10 +35,30 @@ export class Field {
     this.children = props.children;
     this.type = props.type || "string";
     this.defaultValue = props.defaultValue;
+    this.disposers = [];
 
     if (this.defaultValue && !props.value) {
       this.onInput([this.defaultValue]);
     }
+
+    // 初始化属性
+    this.display = "visible";
+    this.pattern = "editable";
+
+    makeObservable(this, {
+      title: observable,
+      value: computed,
+    });
+
+    this.init();
+    this.createReactions();
+    this.form.fields[this.path] = this;
+  }
+
+  init() {
+    // 初始化属性
+    this.display = "visible";
+    this.pattern = "editable";
   }
 
   set value(value: any) {
@@ -71,15 +93,10 @@ export class Field {
     }
   }
 
-  pop() {}
-
-  unshift() {}
-
-  shift() {}
-
-  // setValue() {}
-
-  // setComponet() {}
-
-  // setComponetProps() {}
+  createReactions() {
+    const reactions = this.props?.reactions;
+    if (reactions) {
+      this.disposers.push(autorun(() => reactions(this)));
+    }
+  }
 }
