@@ -1,3 +1,5 @@
+import { debug } from "console";
+import { cloneDeep } from "lodash";
 import { makeAutoObservable, observable, makeObservable } from "mobx";
 import { Form } from "./form";
 
@@ -33,8 +35,6 @@ export class Field {
     this.defaultValue = props.defaultValue;
 
     if (this.defaultValue && !props.value) {
-      console.log("default Value = ", this.defaultValue);
-
       this.onInput([this.defaultValue]);
     }
   }
@@ -49,9 +49,8 @@ export class Field {
 
   onInput(e: any[]) {
     const value = e[0]?.target?.value ? e[0].target.value : e[0];
-    this.value = value;
 
-    console.log("this.value = ", this.value, value);
+    this.value = value;
 
     // 触发一些生命周期hooks
     this.notify("Input_value_change");

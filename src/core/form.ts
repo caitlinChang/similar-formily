@@ -1,5 +1,5 @@
 import { Field } from "./field";
-import { get, set } from "lodash";
+import { cloneDeep, get, set } from "lodash";
 
 import { observable, makeObservable, makeAutoObservable } from "mobx";
 export class Form {
@@ -8,15 +8,16 @@ export class Form {
   fields: {
     [x: string]: Field;
   };
+  count: number;
 
   constructor() {
     this.values = {};
-
-    // makeObservable(this, {
-    //   values: observable,
-    // });
-
+    this.count = 0;
     makeAutoObservable(this);
+  }
+
+  update() {
+    this.count++;
   }
 
   setValues(values: any) {
@@ -29,15 +30,7 @@ export class Form {
   }
 
   getValuesIn(path: string) {
-    get(this.values, path);
-  }
-
-  createField(props: any) {
-    const field = new Field({
-      ...props,
-      form: this,
-    });
-    return field;
+    return get(this.values, path);
   }
 }
 

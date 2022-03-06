@@ -6,7 +6,6 @@ import { Input, Form, Button, Select } from "antd";
 import { cloneDeep, get } from "lodash";
 
 import { observer } from "mobx-react-lite";
-// import { observer } from "mobx-react";
 
 const form = new FormInstance();
 
@@ -27,23 +26,8 @@ const options = [
 
 const ArrayAdvice = observer(() => {
   const arrayField = useContext(FieldContext);
-  const [value, setValue] = useState([]);
-  const form = useContext(FormContext);
   if (arrayField?.type !== "array") return <></>;
-  // const value = arrayField?.value || [];
-
-  // const value = form?.getValuesIn(arrayField?.path as string) || [];
-
-  useEffect(() => {
-    const newValue = get(form?.values, arrayField?.path as string);
-    setValue(newValue);
-    console.log(
-      "formValues change = ",
-      cloneDeep(form?.values),
-      newValue,
-      arrayField.path
-    );
-  }, [form?.values]);
+  const value = arrayField.value;
 
   return (
     <div>
@@ -66,7 +50,7 @@ const ArrayAdvice = observer(() => {
           />
         );
       })}
-      {/* <Button onClick={() => arrayField?.push()}> Add More </Button> */}
+      <Button onClick={() => arrayField?.push()}> Add More </Button>
     </div>
   );
 });
@@ -128,7 +112,6 @@ function Demo() {
           type="array"
           name="array"
           component={[ArrayAdvice, {}]}
-          defaultValue={["", ""]}
         />
         <Button
           type="primary"

@@ -5,7 +5,8 @@ import { Form } from "../core/form";
 import ReactiveField from "./reactiveField";
 
 import { FormContext, FieldContext } from "./context";
-
+// 提供Field组件定义表单元素
+// useForm, useField
 export const FieldComponent = (props: Partial<Field> & { children?: any }) => {
   const form = useContext(FormContext);
   const parent = useContext(FieldContext) || {
@@ -16,6 +17,7 @@ export const FieldComponent = (props: Partial<Field> & { children?: any }) => {
     form: form as Form,
     path: parent.path ? `${parent.path}.${props?.name}` : props.name,
   } as Field);
+
   return (
     <FieldContext.Provider value={field}>
       {/** @ts-ignore */}
