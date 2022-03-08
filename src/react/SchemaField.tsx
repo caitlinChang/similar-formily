@@ -1,37 +1,40 @@
 //schemaField最终还是转化为FieldComponent
+import { AnySoaRecord } from "dns";
+import { create } from "lodash";
 import { createContext, ReactChild, ReactChildren } from "react";
 import { FieldComponent } from ".";
 import { Field } from "../core/field";
-type ISchema = {
-  title?: string;
-  name: string;
-  type: "object" | "string" | "number" | "array" | "void";
-  properties?: ISchema;
-  "x-component"?: string;
-  "x-component-props"?: any;
-  "x-decorator"?: string;
-  "x-decorator-props"?: any;
-};
+import { ISchema, Schema } from "./Schema";
 
-const SchemaContext = createContext<ISchema | undefined>(undefined);
-const SchemaScopeContext = createContext<any>(null);
-const SchemaOptionsContext = createContext<{
-  components?: ReactChildren[];
-}>({});
+const SchemaContext = createContext<any>(null);
 const SchemaField = (props?: {
   components?: ReactChildren[];
   children?: any;
   schema?: ISchema;
   scope: any;
 }) => {
+  const renderMarkUp = () => {
+    if (props?.schema) {
+      return null;
+    }
+    /** 用来渲染markup schema */
+    return props?.children;
+  };
+  const renderChildren = () => {
+    /**用来渲染json-schema */
+    if (props?.schema) {
+      const SchemaInstance = new Schema(props.schema);
+      return;
+    } else {
+      return <></>;
+    }
+  };
   return (
-    <SchemaContext.Provider value={props?.schema}>
-      <SchemaScopeContext.Provider value={props?.scope}>
-        {props?.children}
-      </SchemaScopeContext.Provider>
+    <SchemaContext.Provider value={props}>
+      {renderMarkUp()}
+      {renderChildren()}
     </SchemaContext.Provider>
   );
-  return props?.children;
 };
 
 SchemaField.String = (props: ISchema) => {
