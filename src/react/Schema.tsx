@@ -9,12 +9,12 @@ export type ISchema = {
   "x-component-props"?: any;
   "x-decorator"?: string;
   "x-decorator-props"?: any;
-  "x-display": "visible" | "hidden";
-  "x-read-pretty": boolean;
-  "x-editable": boolean;
-  "x-disabled": boolean;
-  "x-read-only": boolean;
-  "x-pattern": "editable" | "";
+  "x-display"?: "visible" | "hidden";
+  "x-read-pretty"?: boolean;
+  "x-editable"?: boolean;
+  "x-disabled"?: boolean;
+  "x-read-only"?: boolean;
+  "x-pattern"?: "editable" | "";
 };
 
 export class Schema {
@@ -27,12 +27,12 @@ export class Schema {
   "x-component-props"?: any;
   "x-decorator"?: string;
   "x-decorator-props"?: any;
-  "x-display": "visible" | "hidden";
-  "x-read-pretty": boolean;
-  "x-editable": boolean;
-  "x-disabled": boolean;
-  "x-read-only": boolean;
-  "x-pattern": "editable" | "";
+  "x-display"?: "visible" | "hidden";
+  "x-read-pretty"?: boolean;
+  "x-editable"?: boolean;
+  "x-disabled"?: boolean;
+  "x-read-only"?: boolean;
+  "x-pattern"?: "editable" | "";
   constructor(props: ISchema) {
     this.type = props.type;
     this.title = props?.title;

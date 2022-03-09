@@ -1,13 +1,24 @@
-import SchemaField from "./react/SchemaField";
-
+import createSchemaField from "./react/SchemaField";
 import { FormContext } from "./react/context";
+import { Form } from "./core/form";
+import { Input } from "antd";
 
-export default () => {
+const SchemaField = createSchemaField({
+  components: {
+    Input,
+  },
+});
+
+const form = new Form();
+
+export default function MarkUpSchemaDemo() {
   return (
-    <FormContext.Provider>
+    <FormContext.Provider value={form}>
       <SchemaField>
-        <SchemaField.String></SchemaField.String>
+        <SchemaField.String name="name" x-component="Input" />
+        <SchemaField.String name="name" x-component="Input" />
+        <SchemaField.String name="name" x-component="Input" />
       </SchemaField>
     </FormContext.Provider>
   );
-};
+}
