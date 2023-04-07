@@ -5,6 +5,7 @@ export type ISchema = {
   name?: string;
   properties?: ISchema;
   items?: ISchema | ISchema[];
+  children?: any;
   "x-component"?: string;
   "x-component-props"?: any;
   "x-decorator"?: string;

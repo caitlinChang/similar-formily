@@ -1,7 +1,8 @@
 //schemaField最终还是转化为FieldComponent
 import { AnySoaRecord } from "dns";
 import { create } from "lodash";
-import { createContext } from "react";
+import { PropTypes } from "mobx-react";
+import { createContext, useContext } from "react";
 import { FieldComponent } from ".";
 import { Field } from "../core/field";
 import { ISchema, Schema } from "./Schema";
@@ -35,6 +36,29 @@ const SchemaField = (props?: {
       {renderChildren()}
     </SchemaContext.Provider>
   );
+};
+
+const MarkupField = (props: Partial<ISchema>) => {
+  // 在markupField层去处理schemaContext
+  const schemaContext = useContext(SchemaContext);
+  const { components, scope } = schemaContext;
+  const decorator = components[props["x-decorator"] as string];
+  const component = components[props["x-component"] as string]; // 容错处理放在FieldComponent
+  // 递归处理
+  if (props.type === "object" || props.type === "void") {
+    // 如何处理这么多字段的映射？？
+    return (
+      <FieldComponent
+        component={[component, props["x-component-props"]]}
+        decorator={[decorator, props["x-decorator-props"]]}
+        name={props.name}
+        children={props?.children}
+      />
+    );
+  } else if (props.type === "array") {
+    
+  }
+  return <></>;
 };
 
 SchemaField.String = (props: Partial<ISchema>) => {
