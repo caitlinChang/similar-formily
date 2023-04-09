@@ -5,7 +5,7 @@
    实例内部 一旦注册进去，静态的，不会监听它们的变化
 2. 现在要收集各个子组件的 value，通过 DFS 过程中 this.form.setValues 收集完成
 
-3. 然后先丰富 schema 的能力，schema 允许配置字符串表达式
+3. 然后先丰富 schema 的能力，schema 允许配置字符串表达式，解析字符串表达式用 new Function 和 with
 
 ```tsx
 /**
@@ -84,16 +84,86 @@ class Form {
 const form = new Form({});
 ```
 
-#### 使用方式
-
+#### 处理表单内部逻辑
+解析 schema 渲染页面，这时候渲染的只是静态页面，页面内部的逻辑怎么处理呢
 ```tsx
-const form = new Form({});
-return (
-  <FormEngine
-    form={form}
-    components={components}
-    scopes={scopes}
-    schema={schema}
-  />
-);
+// 一个组件的哪些状态会受到外部或者内部影响而改变呢？
+class Field {
+  value, // 组件的值，(受控组件)
+  visible, // 组件是否展示
+  pattern, // 组件展示的模式，例如禁用、readonly 等等
+  data:{ // 组件接收的数据
+    componentProps,
+    decoratorProps,
+    dataSource
+  }
+}
+
+// bad case: 通过这样一个含有组件各种状态的组件实例来控制组件的变化
+export const ComponentWrapper = () => {
+  // 如果把 field 维护在组件树内部肯定不行，因为遇到这种多个组件之间联动，要监听一个组件的状态变化
+  // 然后去改变另外一个组件的状态，这种情况要么把组件状态提到父组件那个层级，要么就得用 ref 暴露出去
+  const [status, setStatus] = useState(new Field());
+
+  return <>
+{field.visible && <Component {...field.componentProps} />}
+</>
+}
+
+// good case: 所有组件树的状态维护在页面顶层，渲染器顶层
+// field 改变的时候页面刷新
+export const resolveSchema = () => {
+  // 实例化一个field
+  const field = new Field({...schema});
+  // 这么多的组件树该怎么样挂载到父组件上面呢, 父组件一定有一个 form 实例，
+  // 最简单的办法就是以路径去存，也比较好取
+  form.fields[path] = field;
+
+  // path 就是schema的配置路径
+  return <>{ field.visible && <Component /> }</>
+}
+
 ```
+
+##### 状态管理
+把整个表单所有的状态提升到顶层，那用什么方案来管理呢？
+传统的react数据流、reducer
+```tsx
+// 其实业界的状态管理方案，就那么几种
+// 1. react 的状态管理方案
+const [form, setForm] = useState({});
+
+// 2. redux，类react的吧，单向数据流，很繁琐
+
+// 3. mobx
+
+```
+
+##### 配置逻辑的执行时机
+```tsx
+// 假设我有一段这样的逻辑
+const config = {
+  type:'object',
+  properties:{
+    a:{
+      visible: '{{$form.query(b).take()?.value === 1}}'
+      reactions:[
+        {
+          dependencies:[],
+
+        }
+      ]
+    },
+    b:{
+      reactions:(field) => {
+        filed.dataSource = []
+      }
+    }
+  }
+}
+
+// 上面这一段
+
+```
+
+
