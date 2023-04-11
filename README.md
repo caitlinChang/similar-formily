@@ -139,7 +139,8 @@ const [form, setForm] = useState({});
 
 ```
 
-##### 配置逻辑的执行时机
+##### reactions 的执行时机
+**要有一张生命周期图**
 其实一直以来我使用 formily 都会有一个疑问，就是 reactions 的执行时机.
 按照表现，它应该是在初始化的时候就会去执行一次。
 但是假如 reactions 中的逻辑有依赖某个状态，一种情况是依赖状态被赋上了默认值，那么 reactions 会执行两次吗,
@@ -173,4 +174,47 @@ const config = {
 
 ```
 
+看了源码之后对这一部分有了理解，reactions 一定会在初始化的时候执行一次，因为要收集依赖嘛，但是这个初始化的时机是由 formily 制定的，什么时候想让它执行，只要用 autoRun(() => fn) 这样包一次就可以了；
 
+所以，在解析 schema 的过程中，会先收集 reactions，包括用户定制的还有系统的
+
+```tsx
+field.props.reactions = [
+  (field) => {...}
+]
+```
+
+然后将 reactions 都用 autoRun 封装一起来
+
+```tsx
+// createReactions
+const reactions = field.props.reactions.map(fn => {
+  () => autoRun(() => fn(field))
+}) 
+```
+
+在 onInit 阶段时执行一下上述 reactions 就可以了，这就完成了初始化
+
+onInit 阶段又分为 ON_FORM_INIT 和 ON_FIELD_INIT；
+现在又有了新问题，生命周期是怎么定义的
+
+#### 生命周期的定义、执行和管理
+先定义好有哪些生命周期，一个表单的生命周期，一个表单元素的生命周期。
+在解析 schema 以及 初始化 form 的过程中，有很多注册 reactions 的地方，初始化的过程，就会把这些 reactions 放在对应生命周期的执行列表里；
+```tsx
+class LifeCycle {
+  constructor(type,executeList){
+    this.executeList = executeList;
+    this.type = type
+  }
+
+  execute(){
+    this.executeList.forEach(fn => fn())
+  }
+}
+```
+
+会有一个统一管理所有生命周期的地方
+```tsx
+
+```
